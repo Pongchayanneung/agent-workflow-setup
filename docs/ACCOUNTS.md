@@ -4,7 +4,7 @@ What needs a human, a browser or a secret. The installer never touches any of th
 
 | What | Command | Needed for | Notes |
 |---|---|---|---|
-| Your agent | `claude`, `codex login`, or `gemini` | everything | Run it once; it opens a browser. On a headless server it prints a URL: open it on another device and paste the code back. Use a plan that includes the CLI. |
+| Your agent | `claude`, `codex login`, `gemini`, or `agy` | everything | Run it once; it opens a browser. On a headless server it prints a URL: open it on another device and paste the code back. Use a plan that includes the CLI. |
 | GitHub | `gh auth login` | push, PRs, `gh` commands | Choose HTTPS and "Login with a web browser". Skip if you do not use GitHub. |
 | Git identity | `git config --global user.name "..."` and `user.email` | commits | Use the email you want public on commits. |
 

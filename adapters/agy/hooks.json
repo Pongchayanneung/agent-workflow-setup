@@ -1,0 +1,30 @@
+{
+  "agent-workflow-smoketest": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"@AW@/hooks/agy-wrap.sh\" enforce_smoketest.sh PreToolUse",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "agent-workflow-capability": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"@AW@/hooks/agy-wrap.sh\" enforce_capability_check.sh PreToolUse",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

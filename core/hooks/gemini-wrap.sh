@@ -5,7 +5,7 @@
 # Claude Code turns stdout into context). This wrapper runs the script on the same stdin payload,
 # then re-wraps its stdout as hookSpecificOutput.additionalContext. Exit code 2 (a block) and its
 # stderr pass straight through. Anything else the script prints to stderr is kept as a warning.
-AW="${AGENT_WORKFLOW_HOME:-$HOME/.agent-workflow}"
+AW="${AGENT_WORKFLOW_HOME:-$(cd "$(dirname "$0")/.." && pwd)}"; export AGENT_WORKFLOW_HOME="$AW"   # wrapper lives in $AW/hooks
 script="$AW/hooks/$(basename "${1:?usage: gemini-wrap.sh <script.sh>}")"
 [ -f "$script" ] || { echo "gemini-wrap: no such hook $script" >&2; exit 1; }
 payload="$(cat)"

@@ -5,10 +5,11 @@ Hooks are different for each tool. This page says exactly how far each one was c
 
 | Piece | Claude Code | Codex | Gemini CLI | Antigravity (`agy`) |
 |---|---|---|---|---|
-| Shared rules file | symlink at `~/.claude/CLAUDE.md` | symlink at `~/.codex/AGENTS.md` | symlink at `~/.gemini/GEMINI.md`, plus `context.fileName` | reads `AGENTS.md` natively (author's setup) |
+| Shared rules file | symlink at `~/.claude/CLAUDE.md` | symlink at `~/.codex/AGENTS.md` | symlink at `~/.gemini/GEMINI.md`, plus `context.fileName` | symlink at `~/.agents/AGENTS.md` (**loaded, tested live**) |
 | Memory notes (`~/.agent-workflow/memory/`) | read on request | read on request | read on request | read on request |
 | `cap` registry | works | works | works | works |
-| Task modes, gates, warm resume | hooks, **in daily use** | `hooks.json`, **experimental** | `settings.json` hooks via `gemini-wrap.sh`, **experimental** | not wired |
+| Gates (smoke-test, capability) | hooks, **in daily use** | `hooks.json`, **experimental** | `settings.json` via `gemini-wrap.sh`, **experimental** | `~/.agents/hooks.json` via `agy-wrap.sh` (**block and allow tested live**) |
+| Task modes, warm resume (need session or prompt hooks) | yes | yes (experimental) | yes (experimental) | **no**: agy has no such hook events. Tell it to run `warm_resume.sh` at session start |
 | WIP autosave | on `SessionEnd` | on `Stop` (idempotent) | cron/launchd, see below | cron/launchd, see below |
 | Compact nudge | yes | no | no | no |
 
@@ -21,8 +22,29 @@ Hooks are different for each tool. This page says exactly how far each one was c
   **They were not run inside a live Codex or Gemini session**, so field names such as the file-edit
   tool names (`apply_patch`, `write_file`, `replace`) come from documentation and are the first thing
   to check if a gate never fires.
-- **Antigravity:** only the shared rules file is relied on. Gemini CLI's own docs state it was replaced
-  by Antigravity CLI on 18 June 2026; its hook system was not checked.
+- **Antigravity (agy):** tested against a real agy session (CLI from this machine), using canary tokens:
+  - `~/.agents/AGENTS.md` is loaded as global rules, and so is an `AGENTS.md` at the workspace root.
+    `~/.agents/rules/*.md` was **not** picked up in the same test.
+  - `~/.agents/hooks.json` is loaded globally (so is `<workspace>/.agents/hooks.json`).
+  - Hook events: `PreToolUse` and `PostToolUse` work. `SessionStart` was rejected when the file was parsed;
+    `UserPromptSubmit`, `Stop` and `SessionEnd` were not isolated, so assume they do not exist.
+  - Each hook group may hold only one event; several events in one named group fail to parse.
+  - Payload is agy's own (`conversationId`, `toolCall.name`, `toolCall.args`, `workspacePaths`), not
+    Claude's. Tool names seen: `view_file`, `write_to_file` (args `TargetFile`, `CodeContent`),
+    `run_command` (arg `CommandLine`). `agy-wrap.sh` translates to the shared scripts' format.
+  - A hook blocks by printing `{"decision":"deny","reason":"..."}` on stdout. End to end: with an
+    untested hook referenced in a file edit, agy was denied and quoted the gate's reason; after
+    `smoketest.sh`, the same edit went through.
+  - Not checked: other edit tool names (`replace_file_content` etc. are guessed to carry `TargetFile`;
+    the wrapper falls back to joining all string args), and agy plugins.
+  - Gemini CLI's own docs say it was replaced by Antigravity CLI on 18 June 2026, so if you are on agy
+    use the agy column, not the Gemini one.
+
+## Antigravity notes
+
+- Plain-text hook output has no documented channel in agy, so `agy-wrap.sh` drops it; only blocks matter.
+- Add this line to your own habits: at the start of a session say "run `bash ~/.agent-workflow/hooks/warm_resume.sh`".
+  `core/templates/AGENTS.md.template` already tells the agent to do it when no hook printed the block.
 
 ## Codex notes
 

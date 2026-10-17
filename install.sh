@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Mechanical half of the setup. The personal half (your rules file) is an interview: see SETUP.md.
 #
-# Usage:  bash install.sh [--tools claude,codex,gemini] [--no-packages] [--install-claude]
+# Usage:  bash install.sh [--tools claude,codex,gemini,agy] [--no-packages] [--install-claude]
 #   --tools           which agents to wire (default: every one found on PATH)
 #   --no-packages     skip brew/apt (git, python3, jq already installed)
 #   --install-claude  also install the Claude Code CLI (other agents: install them yourself)
@@ -54,9 +54,9 @@ if [ "$GET_CLAUDE" = 1 ] && ! command -v claude >/dev/null; then
   curl -fsSL https://claude.ai/install.sh | bash; export PATH="$HOME/.local/bin:$PATH"
 fi
 if [ -z "$TOOLS" ]; then
-  for t in claude codex gemini; do command -v "$t" >/dev/null && TOOLS="${TOOLS:+$TOOLS,}$t"; done
+  for t in claude codex gemini agy; do command -v "$t" >/dev/null && TOOLS="${TOOLS:+$TOOLS,}$t"; done
 fi
-[ -n "$TOOLS" ] || { echo "    no claude/codex/gemini on PATH. Install one, or pass --tools. Core files still install."; }
+[ -n "$TOOLS" ] || { echo "    no claude/codex/gemini/agy on PATH. Install one, or pass --tools. Core files still install."; }
 echo "    wiring: ${TOOLS:-none}"
 
 say "3/6 Core files -> $AW  (hooks, cap registry, templates)"
@@ -73,10 +73,11 @@ case ":$PATH:" in *":$HOME/bin:"*) ;; *) echo "    NOTE: add ~/bin to PATH so 'c
 say "4/6 Smoke-test every hook once (a hook is not wired until it has run)"
 sample='{"session_id":"install-smoke","hook_event_name":"BeforeAgent","prompt":"hello","tool_name":"Read","tool_input":{}}'
 for f in "$AW"/hooks/*.sh; do
-  case "$(basename "$f")" in lib-repos.sh|smoketest.sh|gemini-wrap.sh) continue ;; esac
+  case "$(basename "$f")" in lib-repos.sh|smoketest.sh|gemini-wrap.sh|agy-wrap.sh) continue ;; esac
   bash "$AW/hooks/smoketest.sh" "$f" "$sample" >/dev/null 2>&1 && echo "    ok  $(basename "$f")" || { echo "    FAILED  $(basename "$f")" >&2; exit 1; }
 done
 printf '%s' "$sample" | bash "$AW/hooks/gemini-wrap.sh" show_projects.sh | python3 -c 'import sys,json; json.load(sys.stdin)' && echo "    ok  gemini-wrap.sh (emits valid JSON)"
+printf '{"conversationId":"s","toolCall":{"name":"write_to_file","args":{"TargetFile":"/tmp/x.txt","CodeContent":"hi"}}}' | bash "$AW/hooks/agy-wrap.sh" enforce_smoketest.sh PreToolUse | python3 -c 'import sys; sys.stdin.read()' && echo "    ok  agy-wrap.sh"
 printf '{"transcript_path":"/nonexistent"}' | python3 "$AW/adapters/claude/compact_nudge.py" >/dev/null 2>&1 && echo "    ok  compact_nudge.py"
 
 merge() {  # merge <target-config.json> <template.json>
@@ -117,6 +118,22 @@ for t in ${TOOLS//,/ }; do
     claude) cfg="$HOME/.claude/settings.json"; tpl="$HERE/adapters/claude/settings.json" ;;
     codex)  cfg="$HOME/.codex/hooks.json";     tpl="$HERE/adapters/codex/hooks.json"; echo "    codex: hooks are experimental. If they do not fire, enable the codex_hooks feature (see docs/TOOLS.md)." ;;
     gemini) cfg="$HOME/.gemini/settings.json"; tpl="$HERE/adapters/gemini/settings.json" ;;
+    agy)    backup_cfg "$HOME/.agents/hooks.json"
+            python3 - "$HOME/.agents/hooks.json" "$HERE/adapters/agy/hooks.json" "$AW" <<'PY'
+import json, os, sys
+path, tpl, aw = sys.argv[1:4]
+try:
+    cur = json.load(open(path)) if os.path.exists(path) else {}
+except ValueError:
+    sys.exit(f"    {path} is not plain JSON. Left untouched; copy the groups from {tpl} by hand")
+new = json.loads(open(tpl).read().replace("@AW@", aw))
+added = [k for k in new if k not in cur]
+cur.update({k: new[k] for k in added})
+os.makedirs(os.path.dirname(path), exist_ok=True)
+json.dump(cur, open(path, "w"), indent=2); open(path, "a").write("\n")
+print(f"    wired {len(added)} new hook group(s) into {path} (agy supports only Pre/PostToolUse hooks)")
+PY
+            continue ;;
     *) echo "    unknown tool '$t', skipped"; continue ;;
   esac
   backup_cfg "$cfg"; merge "$cfg" "$tpl"
@@ -125,7 +142,7 @@ done
 say "6/6 Link the shared rules file into each tool's global slot"
 if [ -f "$AW/AGENTS.md" ]; then
   for t in ${TOOLS//,/ }; do
-    case "$t" in claude) g="$HOME/.claude/CLAUDE.md" ;; codex) g="$HOME/.codex/AGENTS.md" ;; gemini) g="$HOME/.gemini/GEMINI.md" ;; *) continue ;; esac
+    case "$t" in claude) g="$HOME/.claude/CLAUDE.md" ;; codex) g="$HOME/.codex/AGENTS.md" ;; gemini) g="$HOME/.gemini/GEMINI.md" ;; agy) g="$HOME/.agents/AGENTS.md" ;; *) continue ;; esac
     if [ -L "$g" ] && [ "$(readlink "$g")" = "$AW/AGENTS.md" ]; then echo "    already linked  $g"
     elif [ -e "$g" ]; then echo "    EXISTS, not touched: $g  (merge it into $AW/AGENTS.md, then delete it and re-run)"
     else mkdir -p "$(dirname "$g")"; ln -s "$AW/AGENTS.md" "$g"; echo "    linked  $g -> $AW/AGENTS.md"; fi

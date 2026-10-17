@@ -2,7 +2,7 @@
 
 A working setup for AI coding agents that does not depend on which one you use: one rules file,
 guardrail hooks, a "check before you build" registry, crash-proof WIP snapshots and a plain-markdown
-memory. Works with **Claude Code**, **Codex** and **Gemini CLI / Antigravity**. No personal data is in
+memory. Works with **Claude Code**, **Codex**, **Gemini CLI** and **Antigravity (`agy`)**. No personal data is in
 this repo; your own details are collected by an interview and stay on your machine.
 
 ## Quick start
@@ -10,7 +10,7 @@ this repo; your own details are collected by an interview and stay on your machi
 ```bash
 git clone https://github.com/Pongchayanneung/agent-workflow-setup.git
 cd agent-workflow-setup
-bash install.sh            # wires every agent it finds on PATH (or: --tools claude,codex,gemini)
+bash install.sh            # wires every agent it finds on PATH (or: --tools claude,codex,gemini,agy)
 ```
 
 Log in to your agent once (see [docs/ACCOUNTS.md](docs/ACCOUNTS.md)), open it **in this folder**, and say:
@@ -32,6 +32,7 @@ agent-workflow-setup/
 │   ├── bin/cap                       capability registry search
 │   └── templates/                    AGENTS.md.template, capabilities.tsv, memory/, pinned_projects.md
 ├── adapters/                         how each tool is wired to core/
+│   ├── agy/                          ~/.agents/hooks.json groups (tested live)
 │   ├── claude/                       settings.json hook wiring + compact_nudge.py
 │   ├── codex/                        hooks.json (experimental)
 │   └── gemini/                       settings.json: context.fileName + hooks (experimental)
@@ -43,7 +44,7 @@ What lands on your machine:
 ```
 ~/.agent-workflow/   AGENTS.md (your rules)  hooks/  capabilities.tsv  memory/  pinned_projects.md  backups/
 ~/bin/cap
-~/.claude/CLAUDE.md -> ~/.agent-workflow/AGENTS.md   (symlink; same for ~/.codex/AGENTS.md, ~/.gemini/GEMINI.md)
+~/.claude/CLAUDE.md -> ~/.agent-workflow/AGENTS.md   (symlink; same for ~/.codex/AGENTS.md, ~/.gemini/GEMINI.md, ~/.agents/AGENTS.md)
 ```
 
 ## What you get
@@ -97,5 +98,6 @@ git reset --hard refs/wip/autosave-<id>                   # in the NEW clone onl
 ## Uninstall
 
 Remove the hook entries from `~/.claude/settings.json`, `~/.codex/hooks.json`, `~/.gemini/settings.json`
-(or restore them from `~/.agent-workflow/backups/`), delete the three symlinks, then remove
+and the `agent-workflow-*` groups from `~/.agents/hooks.json` (or restore them from
+`~/.agent-workflow/backups/`), delete the symlinks, then remove
 `~/.agent-workflow/` and `~/bin/cap`.

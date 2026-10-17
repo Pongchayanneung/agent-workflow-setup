@@ -64,6 +64,10 @@ found. After adding a tool, add a row to the TSV and run `cap --render`.
 - Prefer the smallest correct change. Reuse existing code, stdlib and platform features before
   adding a dependency. File length is a review signal, not a reason to split a cohesive file.
 
+## Session start
+If no hook printed a `WARM RESUME` block at the start of this session (some tools have no session hooks),
+run `bash ~/.agent-workflow/hooks/warm_resume.sh` once and read what it lists as uncommitted.
+
 ## Task modes
 Tools with hooks set a mode per prompt: **light** (default: show a scoped plan only when the
 request is unclear or complex), **full** (plan, review and verify by risk; triggered by "big task",
