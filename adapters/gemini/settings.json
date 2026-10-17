@@ -1,0 +1,54 @@
+{
+  "context": {
+    "fileName": [
+      "AGENTS.md",
+      "GEMINI.md"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/gemini-wrap.sh\" show_projects.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/gemini-wrap.sh\" warm_resume.sh",
+            "timeout": 8000
+          }
+        ]
+      }
+    ],
+    "BeforeAgent": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/gemini-wrap.sh\" task_mode_router.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "BeforeTool": [
+      {
+        "matcher": "write_file|replace|run_shell_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/gemini-wrap.sh\" enforce_smoketest.sh",
+            "timeout": 5000
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/gemini-wrap.sh\" enforce_capability_check.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ]
+  }
+}

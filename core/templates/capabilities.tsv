@@ -1,0 +1,5 @@
+# capabilities.tsv - registry of tools YOU built or wired in. Columns are TAB separated:
+# group	what it does	host (local|server|other)	path	how to run
+hooks	Snapshot dirty git repos at session end to refs/wip	local	~/.agent-workflow/hooks/wip_autosave.sh	automatic (SessionEnd hook)
+hooks	Smoke-test a hook once and record its hash before wiring	local	~/.agent-workflow/hooks/smoketest.sh	bash ~/.agent-workflow/hooks/smoketest.sh <hook.sh>
+tools	Search this registry before building anything new	local	~/bin/cap	cap <words>

@@ -1,0 +1,81 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/task_mode_session_start.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/show_projects.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/warm_resume.sh\"",
+            "timeout": 8
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/task_mode_router.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/enforce_smoketest.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "apply_patch|Write|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/enforce_capability_check.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "apply_patch|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/task_mode_posttool.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.agent-workflow/hooks/wip_autosave.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}
