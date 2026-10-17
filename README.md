@@ -61,6 +61,8 @@ What lands on your machine:
 
 Per-tool coverage and how much of it was actually tested: [docs/TOOLS.md](docs/TOOLS.md).
 
+Skills and agents the author has installed on top of this setup (a list with origins, not shipped by `install.sh`): [docs/SKILLS.md](docs/SKILLS.md).
+
 ## What gets asked, and what never is
 
 Asked (answers stay on your machine): name, role, timezone, languages, OS and other machines, GitHub
