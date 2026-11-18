@@ -103,3 +103,12 @@ Remove the hook entries from `~/.claude/settings.json`, `~/.codex/hooks.json`, `
 and the `agent-workflow-*` groups from `~/.agents/hooks.json` (or restore them from
 `~/.agent-workflow/backups/`), delete the symlinks, then remove
 `~/.agent-workflow/` and `~/bin/cap`.
+
+## Optional working-method modules
+
+[docs/METHOD.md](docs/METHOD.md) covers routing, independent verification, shared memory,
+confidentiality gates, measured route logs and opt-in grill, close-out and vault capture rules.
+The [generic roster](core/templates/agents/ROSTER.md) describes responsibilities without binding
+roles to a host API. `core/bin/routelog` is a manually installed optional CLI with a self-test.
+These additions do not install wrappers, native agents, grill hooks or a vault. The deny-list
+template is empty; populate a private copy before using any confidentiality gate.

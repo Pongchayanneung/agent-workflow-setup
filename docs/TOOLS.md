@@ -73,3 +73,17 @@ Hooks are different for each tool. This page says exactly how far each one was c
 ```
 
 On macOS, a `launchd` agent with `StartInterval` 900 does the same.
+
+## Method additions checked separately
+
+The optional method in [METHOD.md](METHOD.md) is policy and reference material. The roster is a
+brief template, not proof of native role registration in any tool. No tool receives another
+host's permissions, model settings, account or conversation automatically.
+
+The route logger has a standalone stdlib self-test. The installer still installs only the core
+files it explicitly lists; optional roster, logger, deny template and method modules remain in
+the checkout. Wrapper/gate behavior and grill-level persistence are not verified by installing
+this repository. A throwaway-home installer run checks wiring and hook subprocesses, not live
+Claude, Codex, Gemini or agy session events. Earlier live claims above are historical evidence,
+not a certification of your current CLI. Check installed versions and a real session before
+relying on host-specific hooks. The existing task-mode router does not implement grill levels.

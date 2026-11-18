@@ -38,7 +38,7 @@ Ask these in one short batch, wait for answers, and write down anything left una
 ## 4. Write the personal files
 
 - Render `~/.agent-workflow/AGENTS.md.template` to `~/.agent-workflow/AGENTS.md`. Replace every
-  `{{...}}`, delete sections the user declined. Grep the result for a leftover `{{`; there must be none.
+  `<your ...>`, delete sections the user declined. Grep the result for a leftover `<your `; there must be none.
 - Re-run `bash install.sh --no-packages`. Its last step symlinks that one file into each wired tool's
   global slot (`~/.claude/CLAUDE.md`, `~/.codex/AGENTS.md`, `~/.gemini/GEMINI.md`, `~/.agents/AGENTS.md`), so there is a
   single source of truth.
